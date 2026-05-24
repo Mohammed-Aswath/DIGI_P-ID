@@ -1,0 +1,2261 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digi P&ID</title>
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --surface-subtle: #f9fafb;
+            --border: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #15803d;
+            --warning: #b45309;
+            --danger: #b91c1c;
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+        }
+
+        * { box-sizing: border-box; }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            background: #eaf2ff;
+            color: var(--text-primary);
+        }
+
+        .hidden { display: none !important; }
+
+        .app-container {
+            width: 100%;
+            max-width: none;
+            margin: 0;
+            padding: clamp(10px, 1.2vw, 18px) clamp(12px, 1.6vw, 24px) 24px;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .app-header {
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px var(--space-md);
+            margin-bottom: var(--space-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-md);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .brand-logo {
+            width: 28px;
+            height: 28px;
+            color: var(--primary);
+        }
+
+        h1 {
+            font-size: 20px;
+            line-height: 1.3;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        h2 {
+            font-size: 16px;
+            line-height: 1.4;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        h3 {
+            font-size: 14px;
+            line-height: 1.4;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        p {
+            margin: 0;
+            color: var(--text-secondary);
+        }
+
+        main {
+            min-height: calc(100vh - 130px);
+        }
+
+        #uploadPage {
+            min-height: calc(100vh - 170px);
+            display: flex;
+            align-items: stretch;
+            justify-content: stretch;
+        }
+
+        #resultsPage {
+            min-height: calc(100vh - 170px);
+        }
+
+        .icon-btn {
+            min-height: 40px;
+            min-width: 40px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--surface);
+            color: var(--text-secondary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .icon-btn:hover {
+            background: #f3f4f6;
+            color: var(--text-primary);
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 2px rgba(17, 24, 39, 0.04);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-md);
+            margin-bottom: var(--space-md);
+            flex-wrap: wrap;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .btn {
+            min-height: 40px;
+            border-radius: 6px;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid transparent;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            text-decoration: none;
+        }
+
+        .btn:disabled {
+            cursor: not-allowed;
+            background: #d1d5db;
+            color: #6b7280;
+            border-color: #d1d5db;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-hover);
+            border-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background: #ffffff;
+            color: var(--text-primary);
+            border-color: var(--border);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #f9fafb;
+        }
+
+        .btn-wide { width: 100%; }
+
+        .input,
+        select {
+            min-height: 40px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+            background: #ffffff;
+            outline: none;
+            width: 100%;
+        }
+
+        .input:focus,
+        select:focus,
+        .btn:focus-visible,
+        .icon-btn:focus-visible,
+        .tab-btn:focus-visible,
+        button:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+
+        .upload-grid {
+            width: 100%;
+            max-width: none;
+            display: flex;
+        }
+
+        .upload-stage {
+            flex: 1;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .upload-layout {
+            display: grid;
+            grid-template-columns: minmax(300px, 32%) 1fr;
+            gap: var(--space-lg);
+            align-items: stretch;
+            flex: 1;
+            min-height: clamp(420px, 68vh, 760px);
+        }
+
+        .upload-controls {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: var(--space-md);
+            background: var(--surface-subtle);
+            display: grid;
+            gap: var(--space-sm);
+            align-content: start;
+            min-height: 100%;
+        }
+
+        .upload-controls p {
+            margin-bottom: var(--space-sm);
+        }
+
+        .upload-preview {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: var(--space-md);
+            background: var(--surface);
+            display: grid;
+            grid-template-rows: auto 1fr;
+            gap: var(--space-sm);
+            min-height: 100%;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: var(--space-sm);
+            padding-bottom: var(--space-sm);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .preview-box {
+            min-height: 0;
+            height: 100%;
+            border: 1px dashed #cbd5e1;
+            border-radius: 8px;
+            background: #f9fafb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: var(--space-md);
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        #fileNameDisplay {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 65fr) minmax(0, 35fr);
+            gap: var(--space-lg);
+            align-items: start;
+        }
+
+        .dashboard-left,
+        .dashboard-right {
+            min-width: 0;
+        }
+
+        .dashboard-right {
+            display: grid;
+            gap: var(--space-lg);
+            min-width: 0;
+        }
+
+        .dashboard-right .card {
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .dashboard-right .compact-card {
+            overflow: visible;
+            position: relative;
+            z-index: 10;
+        }
+
+        .diagram-frame {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface-subtle);
+            padding: var(--space-sm);
+            position: relative;
+            overflow: auto;
+            max-height: 75vh;
+        }
+
+        #annotatedImageEl {
+            width: auto;
+            height: auto;
+            max-width: none;
+            border-radius: 6px;
+            display: block;
+            opacity: 0;
+        }
+
+        #annotationCanvas {
+            position: absolute;
+            top: var(--space-sm);
+            left: var(--space-sm);
+            z-index: 10;
+            cursor: crosshair;
+        }
+
+        .diagram-tools {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .zoom-controls {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 4px 6px;
+            background: #ffffff;
+        }
+
+        .zoom-controls .btn {
+            min-height: 32px;
+            padding: 6px 10px;
+            font-size: 13px;
+        }
+
+        .zoom-label {
+            min-width: 52px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 13px;
+        }
+
+        .action-row {
+            display: flex;
+            gap: var(--space-sm);
+            margin-top: var(--space-md);
+            flex-wrap: wrap;
+        }
+
+        .action-row .btn {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .compact-card,
+        .analysis-card {
+            padding: 20px;
+        }
+
+        .analysis-scroll {
+            max-height: 280px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 4px;
+        }
+
+        .analysis-scroll::-webkit-scrollbar { width: 8px; }
+        .analysis-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+        .analysis-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        .analysis-list {
+            display: grid;
+            gap: var(--space-sm);
+        }
+
+        .analysis-heading {
+            margin-top: var(--space-sm);
+            padding-top: var(--space-sm);
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .analysis-item {
+            display: flex;
+            justify-content: space-between;
+            gap: var(--space-md);
+            padding-bottom: var(--space-xs);
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .analysis-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .analysis-value {
+            font-weight: 600;
+            color: var(--text-primary);
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .raw-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-md);
+            flex-wrap: wrap;
+            margin-bottom: var(--space-md);
+        }
+
+        .raw-toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            flex-wrap: wrap;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .raw-toolbar-left .input {
+            flex: 1 1 260px;
+            max-width: 360px;
+        }
+
+        #searchResults {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: calc(100% + 6px);
+            background-color: #fff;
+            min-width: 180px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 10px rgba(17, 24, 39, 0.08);
+            z-index: 25;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .dropdown-content button {
+            color: var(--text-primary);
+            padding: 10px 12px;
+            display: block;
+            width: 100%;
+            text-align: left;
+            border: none;
+            background: #fff;
+            cursor: pointer;
+            min-height: 40px;
+        }
+
+        .dropdown-content button:hover { background: #f9fafb; }
+
+        .tab-nav {
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: var(--space-md);
+            flex-wrap: nowrap;
+            margin-bottom: var(--space-md);
+            overflow-x: auto;
+            overflow-y: hidden;
+            white-space: nowrap;
+        }
+
+        .tab-btn {
+            border: none;
+            border-bottom: 2px solid transparent;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 10px;
+            cursor: pointer;
+            min-height: 40px;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: #f9fafb;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .panel {
+            background: #f9fafb;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: var(--space-md);
+        }
+
+        .raw-data-pane {
+            min-height: 360px;
+            max-height: 48vh;
+            overflow: auto;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #111827;
+        }
+
+        .data-content::-webkit-scrollbar { width: 8px; height: 8px; }
+        .data-content::-webkit-scrollbar-track { background: #f1f5f9; }
+        .data-content::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .data-content::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .json-item {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: #ffffff;
+            padding: 12px;
+            margin-bottom: var(--space-sm);
+        }
+
+        .json-key { font-weight: 600; color: #374151; }
+        .json-value { color: #111827; }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: var(--space-sm);
+            margin-bottom: var(--space-md);
+        }
+
+        .metric-card {
+            border: 1px solid var(--border);
+            background: #ffffff;
+            border-radius: 6px;
+            padding: 10px;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .metadata-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--space-sm);
+            font-size: 12px;
+        }
+
+        .metadata-summary-item {
+            padding: var(--space-sm);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: #ffffff;
+            min-width: 0;
+        }
+
+        .metadata-summary-item .label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .metadata-summary-item .value {
+            color: var(--text-primary);
+            font-weight: 600;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        #devMetadataSummary {
+            margin-bottom: var(--space-md);
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: #ffffff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+
+        thead th {
+            background: #f3f4f6;
+            color: #1f2937;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        tbody tr:nth-child(even) { background: #fafafa; }
+        tbody tr:hover { background: #eef2ff; }
+
+        .method-badge {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            font-size: 12px;
+            padding: 2px 8px;
+            white-space: nowrap;
+        }
+
+        .method-1 { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+        .method-2 { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
+        .method-3 { background: #ecfeff; color: #0f766e; border-color: #99f6e4; }
+        .method-none { background: #f3f4f6; color: #374151; }
+
+        .match-ok { color: var(--success); font-weight: 600; }
+        .match-no { color: var(--danger); font-weight: 600; }
+
+        .metadata-rendered h1,
+        .metadata-rendered h2,
+        .metadata-rendered h3 {
+            color: #111827;
+            margin: 14px 0 8px;
+        }
+
+        .metadata-rendered p,
+        .metadata-rendered li {
+            color: #1f2937;
+        }
+
+        .metadata-rendered table {
+            font-size: 13px;
+            margin: 10px 0;
+        }
+
+        .metadata-rendered ol,
+        .metadata-rendered ul {
+            margin: 8px 0 8px 20px;
+        }
+
+        .nav-footer {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            z-index: 40;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+            padding: var(--space-sm);
+            box-shadow: 0 1px 2px rgba(17, 24, 39, 0.08);
+        }
+
+        .nav-btn {
+            min-height: 40px;
+            min-width: 110px;
+            border-radius: 6px;
+            border: 1px solid transparent;
+            background: #ffffff;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 8px 12px;
+            font-weight: 500;
+        }
+
+        .nav-btn:hover {
+            background: #f9fafb;
+            color: var(--text-primary);
+        }
+
+        .nav-btn.active {
+            color: var(--primary);
+            border-color: #bfdbfe;
+            background: #eff6ff;
+        }
+
+        #spinner {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 4px solid #e5e7eb;
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.92);
+            z-index: 60;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-lg);
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(17, 24, 39, 0.4);
+            z-index: 70;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-lg);
+        }
+
+        .modal-card {
+            width: 100%;
+            max-width: 420px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 6px 20px rgba(17, 24, 39, 0.10);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: var(--space-sm);
+            justify-content: center;
+            margin-top: var(--space-md);
+            flex-wrap: wrap;
+        }
+
+        .edit-btn {
+            cursor: pointer;
+            color: var(--primary);
+            text-decoration: underline;
+            margin-left: 8px;
+            font-weight: 600;
+        }
+
+        .tooltip {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            bottom: calc(100% + 6px);
+            left: 50%;
+            transform: translateX(-50%);
+            width: 280px;
+            background: #111827;
+            color: #ffffff;
+            border-radius: 6px;
+            padding: 8px;
+            font-size: 12px;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+
+        .has-tooltip { position: relative; }
+        .has-tooltip:hover .tooltip { visibility: visible; opacity: 1; }
+
+        @media (max-width: 1200px) {
+            .upload-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .upload-stage {
+                min-height: auto;
+            }
+
+            .metrics-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .metadata-summary-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                padding: var(--space-md);
+            }
+
+            .app-header {
+                padding: 12px 14px;
+                margin-bottom: var(--space-md);
+            }
+
+            #uploadPage,
+            #resultsPage {
+                min-height: auto;
+            }
+
+            .upload-layout {
+                min-height: auto;
+            }
+
+            .preview-box {
+                min-height: 260px;
+                height: auto;
+            }
+
+            .section-header,
+            .raw-toolbar,
+            .raw-toolbar-left {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .diagram-tools {
+                justify-content: flex-start;
+            }
+
+            .action-row .btn {
+                min-width: 0;
+                width: 100%;
+            }
+
+            .metrics-grid,
+            .metadata-summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .raw-data-pane {
+                min-height: 300px;
+                max-height: 50vh;
+            }
+
+            .nav-footer {
+                right: 12px;
+                bottom: 12px;
+            }
+
+            .nav-btn {
+                min-width: 96px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="./static/css/editor.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="brand">
+                <svg class="brand-logo" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7V17L12 22L22 17V7L12 2ZM19.6 8.25L12 12.75L4.4 8.25L12 3.75L19.6 8.25Z"/></svg>
+                <h1>Digi P&ID</h1>
+            </div>
+            <button class="icon-btn" type="button" aria-label="Application action">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+            </button>
+        </header>
+
+        <main>
+            <section id="uploadPage">
+                <div class="upload-grid">
+                    <div class="upload-stage">
+                        <div class="section-header" style="margin-bottom: 20px;">
+                            <div>
+                                <h2>Document Viewer</h2>
+                                <p style="margin-top: 6px;">Upload and analyze image, PDF, or CAD files.</p>
+                            </div>
+                        </div>
+
+                        <div class="upload-layout">
+                            <div class="upload-controls">
+                                <label for="fileType" class="help-text">File Type</label>
+                                <select id="fileType">
+                                    <option value="image">Image</option>
+                                    <option value="pdf">PDF</option>
+                                    <option value="cad">CAD File</option>
+                                </select>
+
+                                <label for="fileInput" class="btn btn-secondary btn-wide">Choose File</label>
+                                <input type="file" id="fileInput" class="hidden" accept="image/*,.pdf,.dwg,.dxf">
+
+                                <button id="digitizeBtn" class="btn btn-primary btn-wide" disabled>
+                                    Analyze Document
+                                </button>
+                            </div>
+
+                            <div class="upload-preview">
+                                <div class="preview-header">
+                                    <h3>Input Preview</h3>
+                                    <span class="help-text">Selected file</span>
+                                </div>
+                                <div id="filePreviewContainer" class="preview-box">
+                                    <div id="filePreviewPlaceholder">
+                                        <p id="fileNameDisplay">No file selected</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <section id="resultsPage" class="hidden">
+                <div id="resultsMainView" class="dashboard-grid">
+                    <section class="dashboard-left">
+                        <section class="card">
+                            <div class="section-header">
+                                <h2>Diagram Section</h2>
+                                <div class="diagram-tools">
+                                    <span class="help-text">Select symbols to correct tags. Draw boxes to add missing symbols.</span>
+                                    <div class="zoom-controls">
+                                        <button id="zoomOutBtn" class="btn btn-secondary" type="button" aria-label="Zoom out">-</button>
+                                        <span id="zoomLabel" class="zoom-label">100%</span>
+                                        <button id="zoomInBtn" class="btn btn-secondary" type="button" aria-label="Zoom in">+</button>
+                                        <button id="zoomResetBtn" class="btn btn-secondary" type="button" aria-label="Reset zoom">Reset</button>
+                                    </div>
+                                    <button id="copyOutputImageBtn" class="btn btn-secondary" type="button">Copy Image</button>
+                                    <button id="downloadOutputImageBtn" class="btn btn-secondary" type="button">Download Image</button>
+                                    <button id="switchToEditorBtn" class="btn btn-secondary hidden" type="button" disabled>Switch to Editor</button>
+                                </div>
+                            </div>
+
+                            <div class="diagram-frame">
+                                <canvas id="annotationCanvas"></canvas>
+                                <img id="annotatedImageEl" src="" alt="Annotated P&ID Diagram">
+                            </div>
+
+                            <div class="action-row">
+                                <button id="startFinetuningBtn" class="btn btn-primary has-tooltip" type="button">
+                                    Start Fine-Tuning
+                                    <span class="tooltip">After submitting corrections, re-train the AI. The server will restart.</span>
+                                </button>
+                                <button id="submitCorrectionsBtn" class="btn btn-secondary" type="button">Submit New Symbols</button>
+                            </div>
+                        </section>
+                    </section>
+
+                    <aside class="dashboard-right">
+                        <section class="card compact-card">
+                            <h2>Primary Action Buttons</h2>
+                            <div class="dropdown" style="margin-top: 12px;">
+                                <button id="downloadBtn" class="btn btn-primary" type="button">
+                                    Download
+                                </button>
+                                <div class="dropdown-content" id="downloadDropdown">
+                                    <button id="downloadJsonBtn">JSON</button>
+                                    <button id="downloadXmlBtn">XML</button>
+                                    <button id="downloadIsoBtn">ISO 15926</button>
+                                    <button id="downloadMetadataBtn">Metadata (MD)</button>
+                                    <button id="downloadDxfBtn">DXF</button>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="card analysis-card">
+                            <div class="section-header">
+                                <h2>Analysis Summary</h2>
+                                <input type="text" id="analysisSummarySearch" class="input" placeholder="Search summary...">
+                            </div>
+                            <div id="analysisSummaryContent" class="analysis-list analysis-scroll"></div>
+                        </section>
+
+                        <section class="card">
+                            <div class="raw-toolbar">
+                                <div class="raw-toolbar-left">
+                                    <h2 style="margin: 0;">Raw Graph Data</h2>
+                                    <input type="text" id="searchInput" class="input" placeholder="Search items...">
+                                    <span id="searchResults"></span>
+                                </div>
+                                <div class="dropdown">
+                                    <button id="exportBtn" class="btn btn-secondary" type="button">Export</button>
+                                    <div class="dropdown-content" id="exportDropdown">
+                                        <button id="exportJsonBtn">JSON</button>
+                                        <button id="exportXmlBtn">XML</button>
+                                        <button id="exportIsoBtn">ISO 15926</button>
+                                        <button id="exportMetadataBtn">Metadata (MD)</button>
+                                        <button id="exportDxfBtn">DXF</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <nav class="tab-nav" id="resultsTabs" aria-label="Result formats">
+                                <button data-target="jsonData" class="tab-btn active" type="button">Interactive JSON</button>
+                                <button data-target="xmlData" class="tab-btn" type="button">XML</button>
+                                <button data-target="isoData" class="tab-btn" type="button">ISO 15926</button>
+                                <button data-target="metadataData" class="tab-btn" type="button">Metadata</button>
+                                <button data-target="devConsoleData" class="tab-btn" type="button">Dev Console</button>
+                            </nav>
+
+                            <div class="panel">
+                                <div id="jsonData" class="data-content raw-data-pane"></div>
+                                <pre id="xmlData" class="data-content raw-data-pane hidden"></pre>
+                                <pre id="isoData" class="data-content raw-data-pane hidden"></pre>
+                                <div id="metadataData" class="data-content raw-data-pane hidden"></div>
+                                <div id="devConsoleData" class="data-content raw-data-pane hidden">
+                                    <div id="devMetadataSummary"></div>
+                                    <div id="ocrComparisonContent">
+                                        <p>OCR comparison data will appear here after analysis.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </aside>
+                </div>
+
+                <section id="editorSection" class="card hidden" aria-label="Interactive editor">
+                    <div id="editorToolbar">
+                        <div class="editor-toolbar-left">
+                            <div class="editor-tool-group">
+                                <button class="btn btn-secondary editor-tool" data-tool="select" type="button">Select</button>
+                                <button class="btn btn-secondary editor-tool" data-tool="draw-pipe" type="button">Draw Pipe</button>
+                                <button class="btn btn-secondary editor-tool" data-tool="place" type="button">Place Symbol</button>
+                            </div>
+                            <div class="editor-tool-group">
+                                <div class="editor-zoom">
+                                    <button id="editorZoomOutBtn" class="btn btn-secondary" type="button">-</button>
+                                    <span id="editorZoomLabel">100%</span>
+                                    <button id="editorZoomInBtn" class="btn btn-secondary" type="button">+</button>
+                                    <button id="editorZoomResetBtn" class="btn btn-secondary" type="button">Reset</button>
+                                </div>
+                            </div>
+                            <div class="editor-tool-group">
+                                <button id="toggleBackgroundBtn" class="btn btn-secondary" type="button">Hide Background</button>
+                                <button id="saveDiagramBtn" class="btn btn-primary" type="button">Save Diagram</button>
+                            </div>
+                        </div>
+                        <div class="editor-toolbar-right">
+                            <span class="help-text">Editor Analysis ID: <strong id="editorAnalysisId">N/A</strong></span>
+                            <button id="toggleAgentBtn" class="btn btn-secondary" type="button">Agent Panel</button>
+                            <button id="switchToResultsBtn" class="btn btn-secondary hidden" type="button">Back to Results</button>
+                        </div>
+                    </div>
+
+                    <div id="editorMain">
+                        <aside id="symbolPalette" aria-label="Symbol palette">
+                            <div class="palette-header">Symbols</div>
+                            <div id="paletteItems"></div>
+                        </aside>
+
+                        <div id="editorFrame">
+                            <svg id="pid-editor-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="P and ID editor canvas">
+                                <image id="bg-layer"></image>
+                                <g id="pipe-layer"></g>
+                                <g id="symbol-layer"></g>
+                                <g id="label-layer"></g>
+                                <g id="selection-layer"></g>
+                                <g id="draw-layer"></g>
+                            </svg>
+                        </div>
+
+                        <aside id="propertyPanel" class="hidden" aria-label="Properties panel">
+                            <div class="panel-header">Properties</div>
+                            <div id="propertyContent"></div>
+                        </aside>
+                    </div>
+                </section>
+            </section>
+        </main>
+
+        <nav class="nav-footer" aria-label="Main navigation">
+            <button id="navUploadBtn" class="nav-btn active" type="button">Upload</button>
+            <button id="navResultsBtn" class="nav-btn" type="button" disabled>Results</button>
+        </nav>
+    </div>
+
+    <div id="fullScreenLoader" class="overlay hidden" role="status" aria-live="polite">
+        <div id="spinner"></div>
+        <p style="font-size: 18px; margin-top: 16px; margin-bottom: 0; color: #111827; font-weight: 600;">Analyzing Document...</p>
+        <p>This may take a moment.</p>
+    </div>
+
+    <div id="tagModal" class="modal hidden" role="dialog" aria-modal="true">
+        <div class="modal-card">
+            <h2 id="modalTitle" style="margin-bottom: 12px;">Correct Tag</h2>
+            <input type="text" id="modalTagInput" class="input" placeholder="Enter correct tag">
+            <div class="modal-actions">
+                <button id="modalOkBtn" class="btn btn-primary" type="button">OK</button>
+                <button id="modalCancelBtn" class="btn btn-secondary" type="button">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="classNameModal" class="modal hidden" role="dialog" aria-modal="true">
+        <div class="modal-card">
+            <h2 style="margin-bottom: 8px;">Enter Symbol Name</h2>
+            <p class="help-text">Enter the class name for the new symbol you drew.</p>
+            <input type="text" id="classNameInput" class="input" placeholder="e.g., valve, pump">
+            <div class="modal-actions">
+                <button id="classNameOkBtn" class="btn btn-primary" type="button">OK</button>
+                <button id="classNameCancelBtn" class="btn btn-secondary" type="button">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="newSymbolModal" class="modal hidden" role="dialog" aria-modal="true">
+        <div class="modal-card">
+            <h2 style="margin-bottom: 8px;">Teach AI a New Symbol</h2>
+            <p>The symbol "<strong id="newSymbolName"></strong>" is new. Upload at least 30 additional images for training.</p>
+            <input type="file" id="newSymbolFiles" multiple class="input" style="padding: 8px; height: auto;">
+            <div class="modal-actions" style="justify-content: stretch;">
+                <button id="submitNewSymbolData" class="btn btn-primary btn-wide" type="button">Upload and Teach AI</button>
+                <button id="cancelNewSymbol" class="btn btn-secondary btn-wide" type="button">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <aside id="agentPanel" class="hidden" aria-label="Agent panel">
+        <div class="agent-header">
+            <span class="agent-title">P&ID Agent</span>
+            <div class="model-toggle" role="radiogroup" aria-label="Agent model">
+                <label>
+                    <input type="radio" name="agentModel" value="gemini" checked>
+                    Gemini
+                </label>
+                <label>
+                    <input type="radio" name="agentModel" value="llama">
+                    Llama 2
+                </label>
+            </div>
+            <button id="closeAgentBtn" class="btn btn-secondary" type="button">Close</button>
+        </div>
+        <div id="chatMessages"></div>
+        <div class="chat-input-row">
+            <input id="chatInput" class="input" type="text" placeholder="Type an editing command...">
+            <button id="chatSendBtn" class="btn btn-primary" type="button">Send</button>
+        </div>
+    </aside>
+
+<script>
+    window.__API_BASE__ = window.__API_BASE__ || 'http://127.0.0.1:5000';
+</script>
+<script src="./static/js/diagram_state.js"></script>
+<script src="./static/js/pid_renderer.js"></script>
+<script src="./static/js/editor_interaction.js"></script>
+<script src="./static/js/agent_chat.js"></script>
+<script src="./static/js/save_manager.js"></script>
+<script src="./static/js/dpie_bootstrap.js"></script>
+<script>
+        // --- Element References ---
+        const fileInput = document.getElementById('fileInput');
+        const digitizeBtn = document.getElementById('digitizeBtn');
+        const filePreviewContainer = document.getElementById('filePreviewContainer');
+        const filePreviewPlaceholder = document.getElementById('filePreviewPlaceholder');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+        const fullScreenLoader = document.getElementById('fullScreenLoader');
+        const uploadPage = document.getElementById('uploadPage');
+        const resultsPage = document.getElementById('resultsPage');
+        const navUploadBtn = document.getElementById('navUploadBtn');
+        const navResultsBtn = document.getElementById('navResultsBtn');
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        const analysisSummarySearch = document.getElementById('analysisSummarySearch');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const downloadDropdown = document.getElementById('downloadDropdown');
+        const downloadJsonBtn = document.getElementById('downloadJsonBtn');
+        const downloadXmlBtn = document.getElementById('downloadXmlBtn');
+        const downloadIsoBtn = document.getElementById('downloadIsoBtn');
+        const downloadMetadataBtn = document.getElementById('downloadMetadataBtn');
+        const downloadDxfBtn = document.getElementById('downloadDxfBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const exportDropdown = document.getElementById('exportDropdown');
+        const exportJsonBtn = document.getElementById('exportJsonBtn');
+        const exportXmlBtn = document.getElementById('exportXmlBtn');
+        const exportIsoBtn = document.getElementById('exportIsoBtn');
+        const exportMetadataBtn = document.getElementById('exportMetadataBtn');
+        const exportDxfBtn = document.getElementById('exportDxfBtn');
+        const analysisSummaryContent = document.getElementById('analysisSummaryContent');
+        const resultsTabs = document.getElementById('resultsTabs');
+        const dataContents = document.querySelectorAll('.data-content');
+        const annotatedImageEl = document.getElementById('annotatedImageEl');
+        const canvas = document.getElementById('annotationCanvas');
+        const ctx = canvas.getContext('2d');
+        const zoomOutBtn = document.getElementById('zoomOutBtn');
+        const zoomInBtn = document.getElementById('zoomInBtn');
+        const zoomResetBtn = document.getElementById('zoomResetBtn');
+        const zoomLabel = document.getElementById('zoomLabel');
+        const copyOutputImageBtn = document.getElementById('copyOutputImageBtn');
+        const downloadOutputImageBtn = document.getElementById('downloadOutputImageBtn');
+        const submitCorrectionsBtn = document.getElementById('submitCorrectionsBtn');
+        const startFinetuningBtn = document.getElementById('startFinetuningBtn');
+        const tagModal = document.getElementById('tagModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalTagInput = document.getElementById('modalTagInput');
+        const modalOkBtn = document.getElementById('modalOkBtn');
+        const modalCancelBtn = document.getElementById('modalCancelBtn');
+        const classNameModal = document.getElementById('classNameModal');
+        const classNameInput = document.getElementById('classNameInput');
+        const classNameOkBtn = document.getElementById('classNameOkBtn');
+        const classNameCancelBtn = document.getElementById('classNameCancelBtn');
+        const newSymbolModal = document.getElementById('newSymbolModal');
+        const newSymbolName = document.getElementById('newSymbolName');
+        const newSymbolFiles = document.getElementById('newSymbolFiles');
+        const submitNewSymbolData = document.getElementById('submitNewSymbolData');
+        const cancelNewSymbol = document.getElementById('cancelNewSymbol');
+
+        // --- State Variables ---
+        let uploadedFile = null;
+        let jsonData = {};
+        let baseImage = new Image();
+        let isDrawing = false;
+        let startX, startY;
+        let newAnnotations = [];
+        let digitizedNodes = []; 
+        let currentNewClassName = '';
+        let filteredNodes = [];
+        let metadataMarkdown = '';
+        let dxfArtifact = null;
+        let currentZoom = 1;
+        const MIN_ZOOM = 0.25;
+        const MAX_ZOOM = 5;
+
+        // --- Page Navigation ---
+        function showPage(pageId) {
+            uploadPage.classList.toggle('hidden', pageId !== 'uploadPage');
+            resultsPage.classList.toggle('hidden', pageId !== 'resultsPage');
+            navUploadBtn.classList.toggle('active', pageId === 'uploadPage');
+            navResultsBtn.classList.toggle('active', pageId === 'resultsPage');
+        }
+        navUploadBtn.addEventListener('click', () => showPage('uploadPage'));
+        navResultsBtn.addEventListener('click', () => showPage('resultsPage'));
+        
+        // --- File Handling & Preview ---
+        function handleFile(file) {
+            uploadedFile = file;
+            digitizeBtn.disabled = false;
+            filePreviewPlaceholder.classList.add('hidden');
+            fileNameDisplay.textContent = file.name; // Update file name display
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    filePreviewContainer.style.backgroundImage = `url(${e.target.result})`;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                filePreviewContainer.style.backgroundImage = 'none';
+                filePreviewPlaceholder.classList.remove('hidden');
+                filePreviewPlaceholder.innerHTML = `<p style="margin: 0; font-weight: 600; color: #374151;">${file.name}</p>`;
+            }
+        }
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) handleFile(fileInput.files[0]);
+        });
+
+        // --- Main Digitization Logic ---
+        digitizeBtn.addEventListener('click', async () => {
+            if (!uploadedFile) return;
+            dxfArtifact = null;
+            fullScreenLoader.classList.remove('hidden');
+            try {
+                const formData = new FormData();
+                formData.append('file', uploadedFile);
+                
+                // Use XMLHttpRequest with 5-minute timeout so the frontend waits for backend to finish.
+                // fetch() can hit ~33s browser/proxy limits; XHR's .timeout is more reliable here.
+                const TIMEOUT_MS = 1000 * 60 * 1000; // 5 minutes
+                const startTime = Date.now();
+                console.log('Sending digitization request to backend...');
+                console.log('Waiting for backend (and PaddleOCR if used) to finish. Timeout: 5 minutes.');
+                console.log(`Request started at: ${new Date().toLocaleTimeString()}`);
+                
+                const data = await new Promise((resolve, reject) => {
+                    const xhr = new XMLHttpRequest();
+                    xhr.timeout = TIMEOUT_MS;
+                    xhr.open('POST', 'http://127.0.0.1:5000/digitize');
+                    
+                    xhr.onload = () => {
+                        const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+                        console.log(`Response received after ${elapsed}s, status: ${xhr.status}`);
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            try {
+                                if (!xhr.responseText || xhr.responseText.length === 0) {
+                                    reject(new Error('Server returned empty response'));
+                                    return;
+                                }
+                                const parsed = JSON.parse(xhr.responseText);
+                                if (parsed.error) {
+                                    reject(new Error(parsed.error));
+                                    return;
+                                }
+                                resolve(parsed);
+                            } catch (e) {
+                                reject(new Error('Invalid JSON from server: ' + e.message));
+                            }
+                        } else {
+                            let err = `Server error: ${xhr.status}`;
+                            try {
+                                const body = JSON.parse(xhr.responseText);
+                                if (body && body.error) err = body.error;
+                            } catch (_) {
+                                if (xhr.responseText) err = xhr.responseText.slice(0, 200);
+                            }
+                            reject(new Error(err));
+                        }
+                    };
+                    xhr.onerror = () => {
+                        const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+                        reject(new Error(`Network error after ${elapsed}s. Ensure backend (port 5000) and PaddleOCR (port 6000) are running.`));
+                    };
+                    xhr.ontimeout = () => {
+                        const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+                        reject(new Error(`Request timed out after ${elapsed}s (5 min limit). Backend may still be processing; check terminal for 200 OK.`));
+                    };
+                    xhr.send(formData);
+                });
+                
+                console.log('Successfully parsed JSON response');
+                jsonData = data.graph_data;
+                digitizedNodes = data.graph_data.json;
+                dxfArtifact = data.dxf || null;
+
+                baseImage.src = data.annotated_image;
+                baseImage.onload = () => {
+                    annotatedImageEl.onload = () => {
+                        const naturalWidth = baseImage.naturalWidth || annotatedImageEl.naturalWidth || 0;
+                        const naturalHeight = baseImage.naturalHeight || annotatedImageEl.naturalHeight || 0;
+
+                        if (window.DiagramState && typeof window.DiagramState.load === 'function') {
+                            window.DiagramState.load(data.geometry, {
+                                analysis_id: data.analysis_id,
+                                image_width: naturalWidth,
+                                image_height: naturalHeight,
+                                original_image_b64: data.annotated_image
+                            });
+
+                            document.dispatchEvent(new CustomEvent('digitizeSuccess', {
+                                detail: data
+                            }));
+                        }
+
+                        redrawCanvas();
+                    };
+                    annotatedImageEl.src = baseImage.src;
+                    annotatedImageEl.style.opacity = '1';
+                    currentZoom = 1;
+                    updateZoomLabel();
+                };
+
+                populateAnalysisSummary(data);
+                renderInteractiveJson(digitizedNodes);
+                document.getElementById('xmlData').textContent = jsonData.xml;
+                document.getElementById('isoData').textContent = JSON.stringify(jsonData.iso15926_json, null, 2);
+                
+                // Display OCR comparison if available
+                if (data.ocr_comparison) {
+                    populateOCRComparison(data.ocr_comparison);
+                }
+                
+                // Display metadata if available
+                if (data.metadata) {
+                    renderMetadata(data.metadata);
+                }
+
+                navResultsBtn.disabled = false;
+                showPage('resultsPage');
+            } catch (error) {
+                console.error('Digitization error:', error);
+                console.error('Error details:', {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack
+                });
+                alert("An error occurred: " + error.message + "\n\nCheck the browser console (F12) for more details.");
+            } finally {
+                fullScreenLoader.classList.add('hidden');
+            }
+        });
+        
+        // --- Result Display Helpers & UI ---
+        function populateAnalysisSummary(data) {
+            const bom = data.bill_of_materials || [];
+            let content = '';
+            const analysisId = `ANA_${new Date().toISOString().replace(/[-:.]/g, '').slice(0, -4)}`;
+            content += `<div class="analysis-item" data-searchable="analysis id ${analysisId}"><span class="analysis-label">Analysis ID</span><span class="analysis-value">${analysisId}</span></div>`;
+            content += `<div class="analysis-item" data-searchable="content type cad document"><span class="analysis-label">Content Type</span><span class="analysis-value">CAD Document</span></div>`;
+            if (bom.length > 0) {
+                content += `<div class="analysis-heading">Features Found</div>`;
+                bom.forEach(item => {
+                    content += `<div class="analysis-item" data-searchable="${item.symbol.toLowerCase()} ${item.count}"><span class="analysis-label">${item.symbol}</span><span class="analysis-value">${item.count} items</span></div>`;
+                });
+            }
+            analysisSummaryContent.innerHTML = content;
+            analysisSummarySearch.value = '';
+        }
+        
+        function populateOCRComparison(comparisonData) {
+            const container = document.getElementById('ocrComparisonContent');
+            if (!comparisonData || !comparisonData.symbol_guided_available) {
+                container.innerHTML = `
+                    <div class="panel" style="border-color: #facc15; background: #fffbeb;">
+                        <p style="margin: 0; color: #92400e;">
+                            <strong>Symbol-Guided OCR Not Available</strong><br>
+                            Install PaddleOCR: <code>pip install paddlepaddle paddleocr</code>
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const stats = comparisonData.statistics || {};
+            const timing = comparisonData.timing || {};
+            const comparisonItems = comparisonData.comparison_data || [];
+            
+            let content = '';
+            
+            // Statistics Summary - All 3 Methods
+            content += `
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Total Symbols</div>
+                        <div class="metric-value">${stats.total_symbols || 0}</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Method 1: DocTR</div>
+                        <div class="metric-value">${stats.method_1_proximity_tags || 0}</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Method 2: Symbol-Guided</div>
+                        <div class="metric-value">${stats.method_2_symbol_guided_tags || 0}</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Method 3: DocTR-Guided</div>
+                        <div class="metric-value">${stats.method_3_doctr_guided_tags || 0}</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Tags Match</div>
+                        <div class="metric-value">${stats.tags_match || 0}</div>
+                    </div>
+                </div>
+            `;
+            
+            // Performance Metrics
+            if (timing.symbol_guided && timing.symbol_guided.total_time) {
+                content += `
+                    <div class="panel" style="margin-bottom: 16px;">
+                        <div style="font-weight: 600; margin-bottom: 8px;">Performance Metrics</div>
+                        <div class="analysis-list">
+                            <div class="analysis-item"><span class="analysis-label">Symbol-Guided Time</span><span class="analysis-value">${timing.symbol_guided.total_time.toFixed(2)}s</span></div>
+                            <div class="analysis-item"><span class="analysis-label">DocTR-Guided Time</span><span class="analysis-value">${timing.doctr_guided ? timing.doctr_guided.total_time.toFixed(2) : 'N/A'}s</span></div>
+                            <div class="analysis-item"><span class="analysis-label">Per Symbol</span><span class="analysis-value">${(timing.symbol_guided.time_per_symbol * 1000).toFixed(0)}ms</span></div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Selection Statistics - All 3 Methods
+            content += `
+                <div class="panel" style="margin-bottom: 16px;">
+                    <div style="font-weight: 600; margin-bottom: 8px;">Method Selection</div>
+                    <div class="analysis-list">
+                        <div>
+                            <span class="analysis-label">Method 1 (DocTR)</span>
+                            <span class="analysis-value">${stats.method_1_selected || 0} (${stats.total_symbols ? ((stats.method_1_selected / stats.total_symbols) * 100).toFixed(1) : 0}%)</span>
+                        </div>
+                        <div>
+                            <span class="analysis-label">Method 2 (Symbol-Guided)</span>
+                            <span class="analysis-value">${stats.method_2_selected || 0} (${stats.total_symbols ? ((stats.method_2_selected / stats.total_symbols) * 100).toFixed(1) : 0}%)</span>
+                        </div>
+                        <div>
+                            <span class="analysis-label">Method 3 (DocTR-Guided)</span>
+                            <span class="analysis-value">${stats.method_3_selected || 0} (${stats.total_symbols ? ((stats.method_3_selected / stats.total_symbols) * 100).toFixed(1) : 0}%)</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Detailed Comparison Table - ALL SYMBOLS (not just 10)
+            if (comparisonItems.length > 0) {
+                content += `
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 8px;">Detailed Comparison (All ${comparisonItems.length} Symbols)</div>
+                        <div class="table-wrap" style="max-height: 420px; overflow-y: auto;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Node ID</th>
+                                        <th>Type</th>
+                                        <th>Method 1: DocTR</th>
+                                        <th>Method 2: Symbol-Guided</th>
+                                        <th>Method 3: DocTR-Guided</th>
+                                        <th>Selected</th>
+                                        <th>Match</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                `;
+                
+                // Show ALL items, not just first 10
+                comparisonItems.forEach(item => {
+                    const matchClass = item.tags_match ? 'match-ok' : 'match-no';
+                    const matchIcon = item.tags_match ? 'Yes' : 'No';
+                    
+                    // Determine selected badge color
+                    let selectedBadge = '';
+                    if (item.selected_source === 'proximity_matching') {
+                        selectedBadge = '<span class="method-badge method-1">Method 1</span>';
+                    } else if (item.selected_source === 'symbol_guided') {
+                        selectedBadge = '<span class="method-badge method-2">Method 2</span>';
+                    } else if (item.selected_source === 'doctr_guided') {
+                        selectedBadge = '<span class="method-badge method-3">Method 3</span>';
+                    } else {
+                        selectedBadge = '<span class="method-badge method-none">None</span>';
+                    }
+                    
+                    content += `
+                        <tr>
+                            <td>${item.node_id}</td>
+                            <td>${item.symbol_type}</td>
+                            <td>
+                                ${item.method_1_proximity.tag || '<span style="color:#9ca3af;">N/A</span>'}
+                                <span style="color:#9ca3af;">(${(item.method_1_proximity.confidence * 100).toFixed(0)}%)</span>
+                            </td>
+                            <td>
+                                ${item.method_2_symbol_guided.tag || '<span style="color:#9ca3af;">N/A</span>'}
+                                <span style="color:#9ca3af;">(${(item.method_2_symbol_guided.confidence * 100).toFixed(0)}%)</span>
+                            </td>
+                            <td>
+                                ${item.method_3_doctr_guided.tag || '<span style="color:#9ca3af;">N/A</span>'}
+                                <span style="color:#9ca3af;">(${(item.method_3_doctr_guided.confidence * 100).toFixed(0)}%)</span>
+                            </td>
+                            <td>${selectedBadge}</td>
+                            <td class="${matchClass}">${matchIcon}</td>
+                        </tr>
+                    `;
+                });
+                
+                content += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = content;
+        }
+        
+        function renderMetadata(metadataData) {
+            const container = document.getElementById('metadataData');
+            const devSummaryContainer = document.getElementById('devMetadataSummary');
+            if (!metadataData || !metadataData.available) {
+                metadataMarkdown = '';
+                if (devSummaryContainer) {
+                    devSummaryContainer.innerHTML = '';
+                }
+                container.innerHTML = `
+                    <div class="panel" style="border-color: #facc15; background: #fffbeb; color: #92400e;">
+                        <p>Metadata extraction not available</p>
+                        <p style="font-size: 12px; margin-top: 8px;">${metadataData?.summary?.message || metadataData?.summary?.error || 'Check dependencies.'}</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const summary = metadataData.summary || {};
+            const markdown = metadataData.markdown || '';
+            metadataMarkdown = markdown;
+            
+            let html = '';
+            let summaryHtml = '';
+            
+            if (Object.keys(summary).length > 0) {
+                summaryHtml += '<div class="panel">';
+                summaryHtml += '<div class="section-header" style="margin-bottom: 8px;">';
+                summaryHtml += '<div style="font-weight: 600;">Metadata Summary</div>';
+                summaryHtml += '<button class="btn btn-primary" style="min-height: 32px; padding: 6px 10px; font-size: 12px;" onclick="window.downloadMetadataMarkdown()">Download Markdown</button>';
+                summaryHtml += '</div>';
+                summaryHtml += '<div class="metadata-summary-grid">';
+                for (const [key, value] of Object.entries(summary)) {
+                    const label = key.replace(/_/g, ' ').replace(/^./, x => x.toUpperCase());
+                    summaryHtml += `<div class="metadata-summary-item"><div class="label">${label}</div><div class="value">${value}</div></div>`;
+                }
+                summaryHtml += '</div></div>';
+            }
+
+            if (devSummaryContainer) {
+                devSummaryContainer.innerHTML = summaryHtml;
+            }
+            
+            if (markdown) {
+                html += '<div class="panel" style="background: #ffffff;">';
+                html += '<div class="metadata-rendered">' + markdownToHtml(markdown) + '</div>';
+                html += '</div>';
+            }
+            
+            container.innerHTML = html || '<p style="color:#6b7280;">No metadata extracted.</p>';
+        }
+        
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        function markdownToHtml(markdown) {
+            const lines = (markdown || '').replace(/\r\n/g, '\n').split('\n');
+            const htmlParts = [];
+            let i = 0;
+
+            while (i < lines.length) {
+                const line = lines[i].trim();
+                if (!line) {
+                    i++;
+                    continue;
+                }
+
+                if (/^###\s+/.test(line)) {
+                    htmlParts.push(`<h3>${escapeHtml(line.replace(/^###\s+/, ''))}</h3>`);
+                    i++;
+                    continue;
+                }
+                if (/^##\s+/.test(line)) {
+                    htmlParts.push(`<h2>${escapeHtml(line.replace(/^##\s+/, ''))}</h2>`);
+                    i++;
+                    continue;
+                }
+                if (/^#\s+/.test(line)) {
+                    htmlParts.push(`<h1>${escapeHtml(line.replace(/^#\s+/, ''))}</h1>`);
+                    i++;
+                    continue;
+                }
+
+                if (/^\d+\.\s+/.test(line)) {
+                    const items = [];
+                    while (i < lines.length && /^\d+\.\s+/.test(lines[i].trim())) {
+                        items.push(lines[i].trim().replace(/^\d+\.\s+/, ''));
+                        i++;
+                    }
+                    htmlParts.push('<ol>');
+                    items.forEach(item => htmlParts.push(`<li>${escapeHtml(item)}</li>`));
+                    htmlParts.push('</ol>');
+                    continue;
+                }
+
+                if (/^\-\s+/.test(line)) {
+                    const items = [];
+                    while (i < lines.length && /^\-\s+/.test(lines[i].trim())) {
+                        items.push(lines[i].trim().replace(/^\-\s+/, ''));
+                        i++;
+                    }
+                    htmlParts.push('<ul>');
+                    items.forEach(item => htmlParts.push(`<li>${escapeHtml(item)}</li>`));
+                    htmlParts.push('</ul>');
+                    continue;
+                }
+
+                if (/^\|.*\|$/.test(line)) {
+                    const tableLines = [];
+                    while (i < lines.length && /^\|.*\|$/.test(lines[i].trim())) {
+                        tableLines.push(lines[i].trim());
+                        i++;
+                    }
+                    htmlParts.push(markdownTableToHtml(tableLines));
+                    continue;
+                }
+
+                htmlParts.push(`<p>${escapeHtml(line)}</p>`);
+                i++;
+            }
+
+            return htmlParts.join('');
+        }
+
+        function markdownTableToHtml(tableLines) {
+            if (!tableLines || tableLines.length < 2) return '';
+            const parseRow = (row) => row.replace(/^\||\|$/g, '').split('|').map(c => c.trim());
+            const headerCells = parseRow(tableLines[0]);
+            const bodyLines = tableLines.slice(2);
+
+            let html = '<div class="table-wrap"><table>';
+            html += '<thead><tr>';
+            headerCells.forEach(h => {
+                html += `<th>${escapeHtml(h)}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+
+            bodyLines.forEach(line => {
+                const cells = parseRow(line);
+                html += '<tr>';
+                headerCells.forEach((_, idx) => {
+                    const value = cells[idx] || '';
+                    html += `<td>${escapeHtml(value)}</td>`;
+                });
+                html += '</tr>';
+            });
+
+            html += '</tbody></table></div>';
+            return html;
+        }
+
+        window.downloadMetadataMarkdown = function () {
+            if (!metadataMarkdown) {
+                alert('No metadata markdown available yet.');
+                return;
+            }
+            downloadData(metadataMarkdown, 'metadata.md', 'text/markdown');
+        };
+        
+        function renderInteractiveJson(nodes) {
+            const container = document.getElementById('jsonData');
+            container.innerHTML = ''; 
+            if (!nodes || nodes.length === 0) { container.innerHTML = '<span>No data to display.</span>'; return; }
+            nodes.forEach(node => {
+                const nodeEl = document.createElement('div');
+                nodeEl.className = 'json-item search-item';
+                nodeEl.setAttribute('data-searchable', `${node.node_id} ${node.type} ${node.tag || ''}`.toLowerCase());
+                const addInfoLine = (key, valueHTML) => {
+                    const div = document.createElement('div');
+                    div.innerHTML = `<span class="json-key">${key}:</span> <span class="json-value">${valueHTML}</span>`;
+                    return div;
+                };
+                nodeEl.appendChild(addInfoLine('node_id', node.node_id));
+                nodeEl.appendChild(addInfoLine('type', `"${node.type}"`));
+                const tagLine = document.createElement('div');
+                tagLine.innerHTML = `<span class="json-key">tag:</span> <span class="json-value">"${node.tag || 'N/A'}"</span>`;
+                const editBtn = document.createElement('span');
+                editBtn.className = 'edit-btn';
+                editBtn.textContent = '[Edit]';
+                editBtn.addEventListener('click', () => { showTagCorrectionModal(node.node_id, node.tag); });
+                tagLine.appendChild(editBtn);
+                nodeEl.appendChild(tagLine);
+                container.appendChild(nodeEl);
+            });
+            searchInput.value = '';
+            searchResults.textContent = '';
+        }
+        function filterItems(query) {
+            const searchTerm = query.toLowerCase();
+            const items = document.querySelectorAll('#jsonData .search-item');
+            let visibleCount = 0;
+            items.forEach(item => {
+                const searchable = item.getAttribute('data-searchable');
+                if (searchable.includes(searchTerm)) {
+                    item.style.display = '';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            if (searchTerm) {
+                searchResults.textContent = `${visibleCount} of ${items.length} results`;
+            } else {
+                searchResults.textContent = '';
+            }
+        }
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const items = document.querySelectorAll('#jsonData .search-item');
+            let visibleCount = 0;
+            items.forEach(item => {
+                const searchable = item.getAttribute('data-searchable');
+                if (searchable.includes(searchTerm)) {
+                    item.style.display = '';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            if (searchTerm) {
+                searchResults.textContent = `${visibleCount} of ${items.length} results`;
+            } else {
+                searchResults.textContent = '';
+            }
+        });
+        analysisSummarySearch.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const items = document.querySelectorAll('#analysisSummaryContent .analysis-item');
+            items.forEach(item => {
+                const searchable = item.getAttribute('data-searchable');
+                if (searchable && searchable.includes(searchTerm)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+        resultsTabs.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'BUTTON') return;
+            const targetId = e.target.dataset.target;
+            resultsTabs.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+            dataContents.forEach(content => content.classList.add('hidden'));
+            document.getElementById(targetId).classList.remove('hidden');
+        });
+
+        // --- Download Logic ---
+        function downloadData(data, filename, mimeType) {
+            const blob = new Blob([data], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function closeDropdowns() {
+            if (downloadDropdown) downloadDropdown.style.display = 'none';
+            if (exportDropdown) exportDropdown.style.display = 'none';
+        }
+
+        function toggleDropdown(dropdownEl) {
+            if (!dropdownEl) return;
+            const shouldOpen = dropdownEl.style.display !== 'block';
+            closeDropdowns();
+            dropdownEl.style.display = shouldOpen ? 'block' : 'none';
+        }
+
+        function getDxfDownloadUrl() {
+            if (!dxfArtifact || !dxfArtifact.available || !dxfArtifact.download_url) {
+                return null;
+            }
+            const rawUrl = String(dxfArtifact.download_url);
+            if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) {
+                return rawUrl;
+            }
+            const base = 'http://127.0.0.1:5000';
+            return `${base}${rawUrl.startsWith('/') ? '' : '/'}${rawUrl}`;
+        }
+
+        function downloadDxfFile() {
+            const dxfUrl = getDxfDownloadUrl();
+            if (!dxfUrl) {
+                alert('DXF is not available for this analysis yet.');
+                return;
+            }
+            const a = document.createElement('a');
+            a.href = dxfUrl;
+            a.download = (dxfArtifact && dxfArtifact.filename) ? dxfArtifact.filename : 'analysis.dxf';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function hasGraphData() {
+            return jsonData && jsonData.json && Array.isArray(jsonData.json);
+        }
+
+        function guardAndRun(actionFn) {
+            if (!hasGraphData()) {
+                alert('No analysis data available yet. Please run analysis first.');
+                return;
+            }
+            actionFn();
+        }
+
+        downloadJsonBtn.addEventListener('click', () => guardAndRun(() => downloadData(JSON.stringify(jsonData.json, null, 2), 'analysis.json', 'application/json')));
+        downloadXmlBtn.addEventListener('click', () => guardAndRun(() => downloadData(jsonData.xml || '', 'analysis.xml', 'application/xml')));
+        downloadIsoBtn.addEventListener('click', () => guardAndRun(() => downloadData(JSON.stringify(jsonData.iso15926_json, null, 2), 'analysis_iso15926.json', 'application/json')));
+        downloadMetadataBtn.addEventListener('click', () => guardAndRun(() => window.downloadMetadataMarkdown()));
+        downloadDxfBtn.addEventListener('click', () => guardAndRun(() => downloadDxfFile()));
+
+        exportJsonBtn.addEventListener('click', () => guardAndRun(() => downloadData(JSON.stringify(jsonData.json, null, 2), 'graph_data.json', 'application/json')));
+        exportXmlBtn.addEventListener('click', () => guardAndRun(() => downloadData(jsonData.xml || '', 'graph_data.xml', 'application/xml')));
+        exportIsoBtn.addEventListener('click', () => guardAndRun(() => downloadData(JSON.stringify(jsonData.iso15926_json, null, 2), 'graph_data_iso15926.json', 'application/json')));
+        exportMetadataBtn.addEventListener('click', () => guardAndRun(() => window.downloadMetadataMarkdown()));
+        exportDxfBtn.addEventListener('click', () => guardAndRun(() => downloadDxfFile()));
+
+        downloadBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleDropdown(downloadDropdown);
+        });
+
+        exportBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleDropdown(exportDropdown);
+        });
+
+        document.addEventListener('click', (e) => {
+            const insideDownload = downloadDropdown.contains(e.target) || downloadBtn.contains(e.target);
+            const insideExport = exportDropdown.contains(e.target) || exportBtn.contains(e.target);
+            if (!insideDownload && !insideExport) {
+                closeDropdowns();
+            }
+        });
+
+        [downloadDropdown, exportDropdown].forEach((dropdownEl) => {
+            dropdownEl.querySelectorAll('button').forEach((btn) => {
+                btn.addEventListener('click', () => closeDropdowns());
+            });
+        });
+
+        // --- Canvas Drawing & Fine-tuning Logic ---
+        function updateZoomLabel() {
+            if (!zoomLabel) return;
+            zoomLabel.textContent = `${Math.round(currentZoom * 100)}%`;
+        }
+
+        function setZoom(nextZoom) {
+            currentZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, Number(nextZoom) || 1));
+            updateZoomLabel();
+            redrawCanvas();
+        }
+
+        function redrawCanvas() {
+            if (!baseImage.src || !baseImage.naturalWidth || !baseImage.naturalHeight) return;
+
+            const displayWidth = Math.max(1, Math.round(baseImage.naturalWidth * currentZoom));
+            const displayHeight = Math.max(1, Math.round(baseImage.naturalHeight * currentZoom));
+
+            annotatedImageEl.style.width = displayWidth + 'px';
+            annotatedImageEl.style.height = displayHeight + 'px';
+
+            canvas.width = baseImage.naturalWidth;
+            canvas.height = baseImage.naturalHeight;
+            canvas.style.width = displayWidth + 'px';
+            canvas.style.height = displayHeight + 'px';
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.strokeStyle = 'rgba(239, 68, 68, 0.9)';
+            ctx.lineWidth = 3;
+
+            newAnnotations.forEach(anno => {
+                ctx.strokeRect(
+                    anno.box[0],
+                    anno.box[1],
+                    anno.box[2] - anno.box[0],
+                    anno.box[3] - anno.box[1]
+                );
+            });
+        }
+        window.addEventListener('resize', redrawCanvas);
+
+        function eventToCanvasCoords(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / Math.max(1, rect.width);
+            const scaleY = canvas.height / Math.max(1, rect.height);
+            const x = (e.clientX - rect.left) * scaleX;
+            const y = (e.clientY - rect.top) * scaleY;
+            return { x, y, rect, scaleX, scaleY };
+        }
+
+        function buildCompositeOutputCanvas() {
+            if (!baseImage.src || !baseImage.naturalWidth || !baseImage.naturalHeight) return null;
+            const exportCanvas = document.createElement('canvas');
+            exportCanvas.width = baseImage.naturalWidth;
+            exportCanvas.height = baseImage.naturalHeight;
+            const exportCtx = exportCanvas.getContext('2d');
+            exportCtx.drawImage(baseImage, 0, 0, exportCanvas.width, exportCanvas.height);
+            exportCtx.drawImage(canvas, 0, 0, exportCanvas.width, exportCanvas.height);
+            return exportCanvas;
+        }
+
+        function downloadOutputImage() {
+            const exportCanvas = buildCompositeOutputCanvas();
+            if (!exportCanvas) {
+                alert('No output image available to download yet.');
+                return;
+            }
+            const a = document.createElement('a');
+            a.href = exportCanvas.toDataURL('image/png');
+            a.download = `annotated_pid_${Date.now()}.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        async function copyOutputImageToClipboard() {
+            const exportCanvas = buildCompositeOutputCanvas();
+            if (!exportCanvas) {
+                alert('No output image available to copy yet.');
+                return;
+            }
+            if (!navigator.clipboard || typeof ClipboardItem === 'undefined') {
+                alert('Clipboard image copy is not supported in this browser.');
+                return;
+            }
+            const blob = await new Promise((resolve) => exportCanvas.toBlob(resolve, 'image/png'));
+            if (!blob) {
+                throw new Error('Failed to generate image blob.');
+            }
+            await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+            alert('Output image copied to clipboard.');
+        }
+
+        zoomInBtn.addEventListener('click', () => setZoom(currentZoom * 1.2));
+        zoomOutBtn.addEventListener('click', () => setZoom(currentZoom / 1.2));
+        zoomResetBtn.addEventListener('click', () => setZoom(1));
+        downloadOutputImageBtn.addEventListener('click', downloadOutputImage);
+        copyOutputImageBtn.addEventListener('click', async () => {
+            try {
+                await copyOutputImageToClipboard();
+            } catch (error) {
+                alert(`Failed to copy image: ${error.message}`);
+            }
+        });
+        updateZoomLabel();
+
+        canvas.addEventListener('mousedown', e => {
+            isDrawing = true;
+            const { x, y } = eventToCanvasCoords(e);
+            startX = x;
+            startY = y;
+        });
+        canvas.addEventListener('mousemove', e => {
+            if (!isDrawing) return;
+            const { x, y } = eventToCanvasCoords(e);
+            redrawCanvas();
+            ctx.strokeRect(startX, startY, x - startX, y - startY);
+        });
+        canvas.addEventListener('mouseup', e => {
+            if (!isDrawing) return;
+            isDrawing = false;
+            const { x: endX, y: endY } = eventToCanvasCoords(e);
+            if (Math.abs(endX - startX) < 5 && Math.abs(endY - startY) < 5) { redrawCanvas(); return; }
+            const box = [Math.min(startX, endX), Math.min(startY, endY), Math.max(startX, endX), Math.max(startY, endY)].map(Math.round);
+            showClassNameModal(box);
+        });
+        function showClassNameModal(box) {
+            classNameModal.classList.remove('hidden');
+            classNameInput.value = '';
+            classNameInput.focus();
+            const hide = () => classNameModal.classList.add('hidden');
+            classNameOkBtn.onclick = () => {
+                const className = classNameInput.value.trim();
+                if (className) newAnnotations.push({ className, box });
+                redrawCanvas();
+                hide();
+            };
+            classNameInput.onkeydown = (e) => { if (e.key === 'Enter') classNameOkBtn.click(); };
+            classNameCancelBtn.onclick = () => { redrawCanvas(); hide(); };
+        }
+        submitCorrectionsBtn.addEventListener('click', async () => {
+            if (newAnnotations.length === 0) { alert("No new symbols drawn. Drag on the image to add a symbol first."); return; }
+            try {
+                const annotation = newAnnotations[0]; 
+                const scaleX = baseImage.naturalWidth / canvas.width;
+                const scaleY = baseImage.naturalHeight / canvas.height;
+                const scaledAnnotation = { 
+                    className: annotation.className, 
+                    box: [ annotation.box[0] * scaleX, annotation.box[1] * scaleY, annotation.box[2] * scaleX, annotation.box[3] * scaleY ].map(Math.round)
+                };
+                const response = await fetch('http://127.0.0.1:5000/submit_correction', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ image_b64: baseImage.src, annotation: scaledAnnotation }) });
+                const data = await response.json();
+                if(data.status === 'new_class_detected') {
+                    currentNewClassName = data.className;
+                    newSymbolName.textContent = data.className;
+                    newSymbolModal.classList.remove('hidden');
+                } else if (data.status === 'success') {
+                    alert('Correction submitted successfully!');
+                    newAnnotations.shift(); 
+                    redrawCanvas();
+                } else { throw new Error(data.error || 'Server returned an error.'); }
+            } catch (error) { alert(`Failed to submit corrections: ${error.message}`); }
+        });
+        startFinetuningBtn.addEventListener('click', () => {
+            if (!confirm("Start re-training the AI? The server will restart. Are you sure?")) return;
+            alert("Starting fine-tuning process. The server will become unavailable and will restart automatically when finished.");
+            fetch('http://127.0.0.1:5000/start_finetuning', { method: 'POST' }).catch(error => console.log("Fine-tuning request sent. Error is expected as server restarts.", error));
+        });
+        cancelNewSymbol.addEventListener('click', () => { newSymbolModal.classList.add('hidden'); newSymbolFiles.value = ''; });
+        submitNewSymbolData.addEventListener('click', async () => {
+            const files = newSymbolFiles.files;
+            if (files.length < 30) { alert("Please select at least 30 images to teach the new symbol."); return; }
+            const formData = new FormData();
+            formData.append('className', currentNewClassName);
+            for (const file of files) { formData.append('files', file); }
+            try {
+                const response = await fetch('http://127.0.0.1:5000/upload_new_symbol_data', { method: 'POST', body: formData });
+                 if (!response.ok) throw new Error('Server returned an error during upload.');
+                alert('New symbol data uploaded! You can now start fine-tuning.');
+                newSymbolModal.classList.add('hidden');
+                newAnnotations.shift(); 
+                redrawCanvas();
+            } catch(error) { alert(`Failed to upload new symbol data: ${error.message}`); }
+        });
+
+        // --- Tag Correction Logic ---
+        canvas.addEventListener('click', (e) => {
+            if (isDrawing || digitizedNodes.length === 0) return;
+            const { x: clickX, y: clickY } = eventToCanvasCoords(e);
+            const imageScaleX = canvas.width / baseImage.naturalWidth;
+            const imageScaleY = canvas.height / baseImage.naturalHeight;
+            for (const node of digitizedNodes) {
+                if (!node.bbox) continue;
+                const [x1, y1, x2, y2] = node.bbox;
+                const canvasX1 = x1 * imageScaleX;
+                const canvasY1 = y1 * imageScaleY;
+                const canvasX2 = x2 * imageScaleX;
+                const canvasY2 = y2 * imageScaleY;
+                if (clickX >= canvasX1 && clickX <= canvasX2 && clickY >= canvasY1 && clickY <= canvasY2) {
+                    showTagCorrectionModal(node.node_id, node.tag);
+                    break; 
+                }
+            }
+        });
+        
+        function showTagCorrectionModal(nodeId, currentTag) {
+            const node = digitizedNodes.find(n => n.node_id === nodeId);
+            if (!node) return;
+            modalTitle.textContent = `Correct Tag for ${node.type} (ID: ${node.node_id})`;
+            modalTagInput.value = currentTag || '';
+            tagModal.classList.remove('hidden');
+            modalTagInput.focus();
+            const hideModal = () => tagModal.classList.add('hidden');
+            modalOkBtn.onclick = () => {
+                const newTag = modalTagInput.value;
+                if (newTag !== currentTag) submitTagCorrection(nodeId, newTag);
+                hideModal();
+            };
+            modalTagInput.onkeydown = (e) => { if (e.key === 'Enter') modalOkBtn.click(); };
+            modalCancelBtn.onclick = hideModal;
+        }
+        
+        async function submitTagCorrection(nodeId, tag) {
+            try {
+                const response = await fetch('http://127.0.0.1:5000/submit_tag_correction', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ node_id: nodeId, tag: tag, image_b64: baseImage.src })
+                });
+                if (!response.ok) throw new Error('Server returned an error.');
+                const nodeToUpdate = digitizedNodes.find(n => n.node_id === nodeId);
+                if (nodeToUpdate) {
+                    nodeToUpdate.tag = tag;
+                    jsonData.xml = formatToXml(digitizedNodes);
+                    jsonData.iso15926_json = formatToIso15926(digitizedNodes);
+                    renderInteractiveJson(digitizedNodes);
+                    document.getElementById('xmlData').textContent = jsonData.xml;
+                    document.getElementById('isoData').textContent = JSON.stringify(jsonData.iso15926_json, null, 2);
+                }
+            } catch (error) {
+                alert(`Failed to submit tag correction: ${error.message}`);
+            }
+        }
+
+        // --- Data Formatters ---
+        function formatToXml(nodes) {
+            let xmlString = '<PID_Graph>\n  <Nodes>\n';
+            nodes.forEach(node => {
+                const tag = (node.tag || 'N/A').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+                xmlString += `    <Node id="${node.node_id}">\n`;
+                xmlString += `      <Type>${node.type}</Type>\n`;
+                xmlString += `      <Tag>${tag}</Tag>\n`;
+                xmlString += `      <TagConfidence>${node.tag_confidence}</TagConfidence>\n`;
+                xmlString += `      <NeedsReview>${node.needs_review}</NeedsReview>\n`;
+                xmlString += `      <Connections>\n`;
+                if (node.connections && node.connections.length > 0) {
+                    xmlString += `        <ConnectedNode id="${node.connections[0]}" />\n`;
+                }
+                xmlString += `      </Connections>\n`;
+                xmlString += `    </Node>\n`;
+            });
+            xmlString += '  </Nodes>\n</PID_Graph>';
+            return xmlString;
+        }
+        function formatToIso15926(nodes) {
+            const entities = [];
+            const relationships = [];
+            const processedRelationships = new Set(); 
+            nodes.forEach(node => {
+                entities.push({
+                    "id": `Node_${node.node_id}`,
+                    "class": "PhysicalObject",
+                    "attributes": { "type": node.type, "tag": node.tag || 'N/A', "tag_confidence": node.tag_confidence, "needs_review": node.needs_review }
+                });
+                if (node.connections && node.connections.length > 0) {
+                    const fromId = node.node_id;
+                    const toId = node.connections[0];
+                    const edgeKey = [fromId, toId].sort().join('-');
+                    if (!processedRelationships.has(edgeKey)) {
+                        relationships.push({ "from": `Node_${fromId}`, "to": `Node_${toId}`, "type": "is-connected-to" });
+                        processedRelationships.add(edgeKey);
+                    }
+                }
+            });
+            return { entities, relationships };
+        }
+    </script>
+</body>
+</html>

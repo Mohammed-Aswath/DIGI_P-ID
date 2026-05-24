@@ -1,0 +1,81 @@
+# Dependencies
+node_modules/
+
+# Expo / React Native build outputs
+.expo/
+.expo-shared/
+dist/
+web-build/
+
+# Native build folders
+/android
+/ios
+
+# Python caches and environments
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+venv_paddle/
+env/
+ENV/
+
+# Backend generated artifacts
+outputs/
+analyses/
+backup/
+doctr_crops/
+feedback_data/
+images/
+instruments/
+instruments_yolo/
+instruments_yolo_lowconf/
+metadata_images/
+metadata_images1/
+metadata_images2/
+metadata_images3/
+runs/
+uploads/
+static/images/
+tests/
+
+class_names.json
+_RESTART_REQUIRED_
+
+# Editor / smoke test temp output
+.tmp-smoke/
+
+# Test output / local scratch
+tests/__pycache__/
+
+# Logs and debug files
+*.log
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p8
+*.p12
+*.jks
+*.mobileprovision
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Local agent / scratch files
+_agent_patch.py
+_insert_patch.py
+*.orig.*
+
